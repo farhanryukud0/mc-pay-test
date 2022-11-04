@@ -1,6 +1,4 @@
 const readline = require('readline');
-const {iterateeAry} = require("lodash/fp/_mapping");
-const {compile} = require("morgan");
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
