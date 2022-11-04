@@ -45,7 +45,7 @@ let db = new sqlite3.Database(DBSOURCE, (err) => {
                     const insert = 'INSERT INTO user (name, username, password,balance,createdAt,updatedAt) VALUES (?,?,?,?,?,?)'
                     const password = await generatePasswordHash('@dminTest123');
                     const createdAt = moment().format("YYYY-MM-DD HH:mm:ss");
-                    db.run(insert, ["admin","admin@example.com",password,10000,createdAt,''])
+                    db.run(insert, ["admin","admin",password,10000,createdAt,''])
                 }
             });
     }

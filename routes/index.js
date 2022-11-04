@@ -1,24 +1,18 @@
 const createError = require('http-errors')
 const express = require('express')
 const router = express.Router()
-const db = require("../config/database.js")
+const userRouter = require('./user.route');
+
+
+const defaultRoutes = [
+    {path: '/user', route: userRouter},
+];
 
 router.get('/', function (req, res) {
     res.send("Hello World");
 });
 
-router.get("/api/users", (req, res, next) => {
-    const sql = "select * from user"
-    const params = []
-    db.all(sql, params, (err, rows) => {
-        if (err) {
-            res.status(400).json({"error":err.message});
-            return;
-        }
-        res.json({
-            "message":"success",
-            "data":rows
-        })
-    });
+defaultRoutes.forEach((route) => {
+    router.use(route.path, route.route);
 });
 module.exports = router;
