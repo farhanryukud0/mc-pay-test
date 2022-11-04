@@ -3,11 +3,13 @@ const express = require('express')
 const router = express.Router()
 const userRouter = require('./user');
 const authRouter = require('./auth');
+const transactionRouter = require('./transaction');
 
 
 const defaultRoutes = [
     {path: '/user', route: userRouter},
     {path: '/auth', route: authRouter},
+    {path: '/transaction', route: transactionRouter},
 ];
 
 router.get('/', function (req, res) {

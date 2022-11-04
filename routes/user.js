@@ -7,8 +7,8 @@ const { UserRegistrationSchema } = require('../schema/user');
 
 const userController = require('../controller/user');
 
-router.get('/users', userController.getUsers);
-router.post('/register', mw_validation(UserRegistrationSchema), userController.createUser)
+router.get('/', userController.getUsers);
+router.put('/', mw_validation(UserRegistrationSchema), userController.createUser)
 
 
 module.exports = router;
