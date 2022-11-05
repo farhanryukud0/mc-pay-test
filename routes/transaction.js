@@ -9,6 +9,7 @@ const transactionController = require('../controller/transaction');
 const {verifyToken} = require("../middlewares/authJwt");
 
 router.get('/', verifyToken,  transactionController.getAll)
+router.get('/summary', verifyToken,  transactionController.getSummary)
 router.get('/:id', verifyToken,  transactionController.getById)
 router.delete('/:id', verifyToken,  transactionController.deleteById)
 router.put('/', [mw_validation(insertTransactionSchema),verifyToken],  transactionController.createTransaction)

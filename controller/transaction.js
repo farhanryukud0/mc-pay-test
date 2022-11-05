@@ -11,6 +11,7 @@ const getAll = catchAsync(async (req, res) => {
     const sql = `select trx.id,tt.transactionType,
                 CASE when tt.isDeduct = 1 THEN 'DEBIT' ELSE 'CREDIT' END 'debit/credit',
                 trx.transactionValue,
+                trx.userId,
                 trx.transactionDesc,
                 trx.createdAt 
                 from transactions trx join transactionType tt on trx.transactionTypeId = tt.id 
@@ -41,6 +42,28 @@ const getById = catchAsync(async (req, res) => {
         if (err) {
             return messageResponse(res, err.message)
         }
+        if(!row) return messageResponse(res,'Transaksi tidak di temukan',StatusCodes.NOT_FOUND)
+
+        return defaultResponse(res,row)
+    })
+})
+
+const getSummary = catchAsync(async (req, res) => {
+    const sql = `select u.name,
+                u.username,
+                SUM(CASE WHEN tt.isDeduct = 0 THEN transactionValue ELSE 0 END) totalCredit,
+                SUM(CASE WHEN tt.isDeduct = 1 THEN transactionValue ELSE 0 END) totalDebit,
+                SUM(CASE WHEN tt.isDeduct = 0 THEN transactionValue ELSE -transactionValue END) balance
+                from transactions trx join transactionType tt on trx.transactionTypeId = tt.id
+                join user u on trx.userId = u.id 
+                where userId = ? group by u.id`
+    const userId = httpContext.get('userId');
+    const params = [userId]
+    db.get(sql, params, function (err, row) {
+        if (err) {
+            return messageResponse(res, err.message)
+        }
+
         if(!row) return messageResponse(res,'Transaksi tidak di temukan',StatusCodes.NOT_FOUND)
 
         return defaultResponse(res,row)
@@ -103,7 +126,9 @@ const updateTransaction = catchAsync(async (req, res) => {
 
 const getUserBalance = async (id = null) => {
     return new Promise(resolve => {
-        let sql = "select SUM(CASE WHEN transactionTypeId = 1 THEN transactionValue ELSE -transactionValue END) balance from transactions where userId = ?"
+        let sql = `select SUM(CASE WHEN tt.isDeduct = 0 THEN transactionValue ELSE -transactionValue END) balance 
+            from transactions trx join transactionType tt on trx.transactionTypeId = tt.id where trx.userId = ?
+        `
 
         const userId = httpContext.get('userId');
         const params = [userId]
@@ -121,6 +146,7 @@ const getUserBalance = async (id = null) => {
 module.exports = {
     getAll,
     getById,
+    getSummary,
     deleteById,
     createTransaction,
     updateTransaction,
