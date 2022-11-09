@@ -6,6 +6,8 @@ const moment = require("moment-timezone")
 const {StatusCodes} = require("http-status-codes")
 
 const getUsers = catchAsync(async (req, res) => {
+    // #swagger.tags = ['User']
+    // #swagger.description = 'Endpoint para obter um usuário.'
     const sql = "select * from user"
     const params = []
     db.all(sql, params, function (err, rows) {
@@ -41,7 +43,22 @@ const createUser = catchAsync(async (req, res) => {
     })
 })
 
+const updateUser = catchAsync(async (req, res) => {
+    let sql = 'update user set name = ?, username = ?, password = ?,updatedAt = ? where id = ?'
+    const param = req.body
+    const password = await generatePasswordHash(param.password)
+    const createdAt = moment().format("YYYY-MM-DD HH:mm:ss")
+    let params = [param.name,param.username,password,createdAt,param.id]
+    db.run(sql, params, function (err, row) {
+        if (err) {
+            return messageResponse(res, err.message)
+        }
+        return messageResponse(res,'Data berhasil diupdate',StatusCodes.OK)
+    })
+})
+
 module.exports = {
     getUsers,
-    createUser
+    createUser,
+    updateUser
 }
